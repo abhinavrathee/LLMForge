@@ -14,6 +14,17 @@ const registerUser = async (req, res) => {
   try {
     const { username, email, password } = req.body;
 
+    // Backend Input Validation
+    if (!username || username.length < 3 || username.length > 20 || !/^[a-zA-Z0-9_]+$/.test(username)) {
+      return res.status(400).json({ message: 'Username must be 3-20 alphanumeric characters' });
+    }
+    if (!email || !/^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/.test(email)) {
+      return res.status(400).json({ message: 'Invalid email format' });
+    }
+    if (!password || password.length < 8 || !/(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_])/.test(password)) {
+      return res.status(400).json({ message: 'Password must be at least 8 characters long and contain uppercase, lowercase, number, and special character' });
+    }
+
     const userExists = await User.findOne({ email });
 
     if (userExists) {
@@ -47,6 +58,10 @@ const registerUser = async (req, res) => {
 const loginUser = async (req, res) => {
   try {
     const { email, password } = req.body;
+
+    if (!email || !password) {
+      return res.status(400).json({ message: 'Please provide both email and password' });
+    }
 
     const user = await User.findOne({ email });
 

@@ -1,5 +1,5 @@
 // backend/controllers/queryController.js
-const { getLlmResponses } = require('../services/llmService');
+const { getLlmResponses, getAvailableModels } = require('../services/llmService');
 const { generateSummary } = require('../services/summaryService');
 const QueryHistory = require('../models/QueryHistory');
 
@@ -7,11 +7,16 @@ const QueryHistory = require('../models/QueryHistory');
 // @route         POST /api/query
 const createQuery = async (req, res) => {
   try {
-    const { query, sessionId } = req.body;
+    const { query, sessionId, selectedModels } = req.body;
 
     if (!query) {
       return res.status(400).json({ error: 'Query is required' });
     }
+
+    // Use selectedModels from request, or default to all models
+    const modelsToUse = selectedModels && selectedModels.length > 0 
+      ? selectedModels 
+      : ['claude-3.5-sonnet', 'gpt-4o-mini', 'mixtral-8x7b-instruct'];
 
     let chatSession = null;
     let previousTurns = [];
@@ -25,9 +30,9 @@ const createQuery = async (req, res) => {
       previousTurns = chatSession.turns;
     }
 
-    // Send the user's question to multiple LLM providers in parallel
+    // Send the user's question to selected LLM providers in parallel
     // Pass previous turns for conversational context
-    const responses = await getLlmResponses(query, previousTurns);
+    const responses = await getLlmResponses(query, previousTurns, modelsToUse);
 
     // This service collects all model outputs
     // and formats them before sending them to the summarizer
@@ -91,8 +96,21 @@ const deleteQuery = async (req, res) => {
   }
 };
 
+// @description   Get all dynamic live models from Puter.js
+// @route         GET /api/query/models
+const getModelsList = async (req, res) => {
+  try {
+    const models = await getAvailableModels();
+    res.status(200).json(models);
+  } catch (error) {
+    console.error('Error fetching models list:', error);
+    res.status(500).json({ error: 'Failed to fetch dynamic models list' });
+  }
+};
+
 module.exports = {
   createQuery,
   getHistory,
   deleteQuery,
+  getModelsList,
 };
