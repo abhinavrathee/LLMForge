@@ -2,7 +2,19 @@
 
 LLMForge is an enterprise-grade AI synthesis and multi-model reasoning platform. It allows users to query multiple state-of-the-art Large Language Models (LLMs) simultaneously and synthesize their responses into a single cohesive executive summary.
 
+
 ---
+
+## 📸 Screenshots
+
+<img src="assets/screenshots/LandingPage.png" width="100%" alt="Landing Page" />
+
+<img src="assets/screenshots/Dashboard1.png" width="100%" alt="Dashboard" />
+
+<img src="assets/screenshots/Synthesis.png" width="100%" alt="AI Synthesis" />
+
+---
+
 
 ## 🏗️ Architecture & Sequential Data Flow
 
