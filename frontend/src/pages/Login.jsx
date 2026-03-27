@@ -57,16 +57,71 @@ const Login = () => {
     setIsSubmitting(false);
   };
 
+  const fillDemoCredentials = () => {
+    setIsLogin(true);
+    setEmail('demo@llmforge.dev');
+    setPassword('Demo@1234');
+    setError('');
+  };
+
   return (
     <div className="home-container" style={{ width: '100%', minHeight: '100vh', display: 'flex', flexDirection: 'column', padding: '2rem', overflowY: 'auto' }}>
-      <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4rem' }}>
+      <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '3rem' }}>
         <div style={{ cursor: 'pointer', transition: 'transform 0.2s ease' }} onClick={() => navigate('/')} onMouseOver={e => e.currentTarget.style.transform = 'scale(1.05)'} onMouseOut={e => e.currentTarget.style.transform = 'scale(1)'}>
           <Logo width={36} height={36} />
         </div>
         <ThemeToggle />
       </header>
 
-      <main style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'flex-start', gap: '2rem', paddingBottom: '2rem' }}>
+      <main style={{ flex: 1, display: 'flex', alignItems: 'flex-start', justifyContent: 'center', gap: '2.5rem', paddingBottom: '2rem', flexWrap: 'wrap' }}>
+
+        {/* ── Left Note Panel ── */}
+        <div style={{
+          width: '100%', maxWidth: '320px', padding: '1.75rem',
+          borderRadius: '16px', border: '1px solid var(--border-color)',
+          background: 'var(--bg-secondary)', alignSelf: 'flex-start',
+          display: 'flex', flexDirection: 'column', gap: '1rem',
+          marginTop: '0.25rem'
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
+            <span style={{ fontSize: '1.25rem' }}>📋</span>
+            <span style={{ fontWeight: 700, fontSize: '1rem', color: 'var(--text-primary)' }}>Recruiter / Visitor Note</span>
+          </div>
+
+          <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', lineHeight: '1.6', margin: 0 }}>
+            You can explore the full LLMForge experience using the <strong style={{ color: 'var(--text-primary)' }}>Demo Credentials</strong> below — no sign-up needed.
+          </p>
+
+          <div style={{
+            padding: '0.85rem 1rem', borderRadius: '10px',
+            background: 'var(--bg-tertiary)', border: '1px dashed var(--border-color)',
+            fontSize: '0.82rem', color: 'var(--text-secondary)', lineHeight: '1.7'
+          }}>
+            <div style={{ marginBottom: '0.25rem' }}>
+              <span style={{ color: 'var(--text-primary)', fontWeight: 600 }}>Email: </span>demo@llmforge.dev
+            </div>
+            <div>
+              <span style={{ color: 'var(--text-primary)', fontWeight: 600 }}>Password: </span>Demo@1234
+            </div>
+          </div>
+
+          <div style={{
+            padding: '0.9rem', borderRadius: '10px',
+            background: 'rgba(251,191,36,0.08)', border: '1px solid rgba(251,191,36,0.25)',
+            display: 'flex', gap: '0.6rem', alignItems: 'flex-start'
+          }}>
+            <span style={{ fontSize: '1rem', flexShrink: 0, marginTop: '1px' }}>⚠️</span>
+            <p style={{ margin: 0, fontSize: '0.8rem', color: 'var(--text-secondary)', lineHeight: '1.6' }}>
+              If the API isn't responding, it may be due to <strong style={{ color: '#fbbf24' }}>free-tier credits being exhausted</strong>. Reach out and I'll walk you through it personally.
+            </p>
+          </div>
+
+          <p style={{ margin: 0, fontSize: '0.78rem', color: 'var(--text-secondary)', lineHeight: '1.5', opacity: 0.75 }}>
+            📬 Want a live walkthrough? <a href="mailto:anujkumar142000@gmail.com" style={{ color: 'var(--text-primary)', textDecoration: 'underline', textUnderlineOffset: '2px' }}>Contact me</a> — happy to demo it for you directly.
+          </p>
+        </div>
+
+        {/* ── Login Form ── */}
         <div className="breathtaking-panel" style={{ width: '100%', maxWidth: '420px', padding: '2.5rem 2rem', borderRadius: '16px', borderTop: '4px solid var(--text-primary)' }}>
           <div style={{ display: 'flex', gap: '1rem', marginBottom: '2rem' }}>
             <button 
@@ -166,7 +221,36 @@ const Login = () => {
               {isSubmitting ? 'Processing...' : (isLogin ? 'Sign In to Dashboard' : 'Create Account')}
             </button>
           </form>
+
+          {/* ── Demo Credentials Bar ── */}
+          <div style={{ marginTop: '1.75rem', borderTop: '1px solid var(--border-color)', paddingTop: '1.25rem' }}>
+            <p style={{ textAlign: 'center', fontSize: '0.78rem', color: 'var(--text-secondary)', marginBottom: '0.75rem', letterSpacing: '0.02em' }}>
+              🔍 &nbsp;Just exploring? Use demo access
+            </p>
+            <button
+              type="button"
+              onClick={fillDemoCredentials}
+              style={{
+                width: '100%', padding: '0.7rem 1rem',
+                borderRadius: '10px', cursor: 'pointer',
+                background: 'linear-gradient(135deg, rgba(99,102,241,0.12), rgba(139,92,246,0.12))',
+                border: '1px solid rgba(139,92,246,0.35)',
+                color: 'var(--text-primary)', fontSize: '0.85rem', fontWeight: 600,
+                display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem',
+                transition: 'all 0.2s ease'
+              }}
+              onMouseOver={e => { e.currentTarget.style.background = 'linear-gradient(135deg, rgba(99,102,241,0.22), rgba(139,92,246,0.22))'; e.currentTarget.style.borderColor = 'rgba(139,92,246,0.6)'; }}
+              onMouseOut={e => { e.currentTarget.style.background = 'linear-gradient(135deg, rgba(99,102,241,0.12), rgba(139,92,246,0.12))'; e.currentTarget.style.borderColor = 'rgba(139,92,246,0.35)'; }}
+            >
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg>
+              Use Demo Credentials
+            </button>
+            <p style={{ textAlign: 'center', fontSize: '0.72rem', color: 'var(--text-secondary)', marginTop: '0.5rem', opacity: 0.65 }}>
+              Fills in the form automatically — just hit Sign In
+            </p>
+          </div>
         </div>
+
       </main>
     </div>
   );

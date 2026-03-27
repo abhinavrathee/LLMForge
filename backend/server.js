@@ -13,7 +13,15 @@ const queryRoutes = require('./routes/queryRoutes');
 const authRoutes = require('./routes/authRoutes');
 
 // Connect to database
-connectDB();
+connectDB().catch((err) => {
+  console.error('Fatal: could not connect to MongoDB:', err.message || err);
+  process.exit(1);
+});
+
+// Global safety net — log but don't crash (e.g. Puter SDK internal auth checks)
+process.on('unhandledRejection', (reason) => {
+  console.warn('Unhandled Promise Rejection (non-fatal):', reason?.message || reason);
+});
 
 const app = express();
 
