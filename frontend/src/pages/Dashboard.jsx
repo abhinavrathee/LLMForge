@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useContext, useRef } from 'react';
 import { AuthContext } from '../context/AuthContext';
 import { getHistory, submitQuery, deleteHistory } from '../services/api';
+import { exportAsJSON, exportAsPDF } from '../services/exportUtils';
 import Sidebar from '../components/Sidebar';
 import ThemeToggle from '../components/ThemeToggle';
 import QueryBox from '../components/QueryBox';
@@ -167,7 +168,59 @@ const Dashboard = () => {
             </span>
           </div>
 
-          <ThemeToggle />
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            {currentResult && currentResult.turns && currentResult.turns.length > 0 && (
+              <div style={{ position: 'relative', display: 'flex', gap: '0.35rem' }}>
+                <button
+                  onClick={() => exportAsJSON(currentResult)}
+                  title="Export as JSON"
+                  style={{
+                    background: 'transparent',
+                    border: '1px solid var(--border-color)',
+                    color: 'var(--text-secondary)',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '0.35rem',
+                    padding: '0.35rem 0.7rem',
+                    borderRadius: '20px',
+                    fontSize: '0.75rem',
+                    fontWeight: 500,
+                    transition: 'all 0.15s ease'
+                  }}
+                  onMouseOver={e => { e.currentTarget.style.background = 'var(--bg-tertiary)'; e.currentTarget.style.color = 'var(--text-primary)'; }}
+                  onMouseOut={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = 'var(--text-secondary)'; }}
+                >
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg>
+                  JSON
+                </button>
+                <button
+                  onClick={() => exportAsPDF(currentResult)}
+                  title="Export as PDF"
+                  style={{
+                    background: 'transparent',
+                    border: '1px solid var(--border-color)',
+                    color: 'var(--text-secondary)',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '0.35rem',
+                    padding: '0.35rem 0.7rem',
+                    borderRadius: '20px',
+                    fontSize: '0.75rem',
+                    fontWeight: 500,
+                    transition: 'all 0.15s ease'
+                  }}
+                  onMouseOver={e => { e.currentTarget.style.background = 'var(--bg-tertiary)'; e.currentTarget.style.color = 'var(--text-primary)'; }}
+                  onMouseOut={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = 'var(--text-secondary)'; }}
+                >
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+                  PDF
+                </button>
+              </div>
+            )}
+            <ThemeToggle />
+          </div>
         </header>
 
         <div ref={scrollRef} style={{ flex: 1, overflowY: 'auto', overflowX: 'hidden', padding: '2rem', display: 'flex', flexDirection: 'column', gap: '2rem' }}>

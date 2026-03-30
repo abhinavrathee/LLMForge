@@ -1,0 +1,166 @@
+import jsPDF from 'jspdf';
+
+/**
+ * Export conversation as JSON file
+ */
+export const exportAsJSON = (conversation) => {
+  if (!conversation) return;
+
+  const exportData = {
+    title: conversation.title || 'LLMForge Conversation',
+    exportedAt: new Date().toISOString(),
+    turns: (conversation.turns || []).map(turn => ({
+      query: turn.query,
+      responses: turn.responses.map(r => ({
+        model: r.modelName,
+        answer: r.answer,
+      })),
+      synthesis: turn.finalSummary,
+      timestamp: turn.timestamp,
+    })),
+  };
+
+  const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = `llmforge-${(conversation.title || 'chat').replace(/[^a-z0-9]/gi, '_').substring(0, 30)}.json`;
+  link.click();
+  URL.revokeObjectURL(url);
+};
+
+/**
+ * Strip markdown formatting for clean PDF text
+ */
+const stripMarkdown = (text) => {
+  if (!text) return '';
+  return text
+    .replace(/#{1,6}\s/g, '')        // headings
+    .replace(/\*\*(.*?)\*\*/g, '$1') // bold
+    .replace(/\*(.*?)\*/g, '$1')     // italic
+    .replace(/`{3}[\s\S]*?`{3}/g, (match) => match.replace(/`{3}\w*\n?/g, '')) // code blocks
+    .replace(/`([^`]+)`/g, '$1')     // inline code
+    .replace(/\[([^\]]+)\]\([^)]+\)/g, '$1') // links
+    .replace(/^[-*+]\s/gm, '• ')     // bullet points
+    .replace(/^\d+\.\s/gm, '')       // numbered lists
+    .replace(/^>\s/gm, '')           // blockquotes
+    .trim();
+};
+
+/**
+ * Export conversation as PDF file
+ */
+export const exportAsPDF = (conversation) => {
+  if (!conversation) return;
+
+  const doc = new jsPDF({ unit: 'mm', format: 'a4' });
+  const pageWidth = doc.internal.pageSize.getWidth();
+  const margin = 15;
+  const maxWidth = pageWidth - margin * 2;
+  let y = 20;
+
+  const checkPageBreak = (needed = 20) => {
+    if (y + needed > doc.internal.pageSize.getHeight() - 15) {
+      doc.addPage();
+      y = 20;
+    }
+  };
+
+  const addWrappedText = (text, x, fontSize, options = {}) => {
+    doc.setFontSize(fontSize);
+    if (options.bold) doc.setFont('helvetica', 'bold');
+    else doc.setFont('helvetica', 'normal');
+    if (options.color) doc.setTextColor(...options.color);
+    else doc.setTextColor(30, 30, 30);
+
+    const lines = doc.splitTextToSize(text, options.width || maxWidth);
+    for (const line of lines) {
+      checkPageBreak(fontSize * 0.5);
+      doc.text(line, x, y);
+      y += fontSize * 0.45;
+    }
+    y += 2;
+  };
+
+  // ── Title ──
+  doc.setFontSize(22);
+  doc.setFont('helvetica', 'bold');
+  doc.setTextColor(15, 23, 42);
+  doc.text('LLMForge', margin, y);
+  y += 8;
+
+  // Subtitle
+  doc.setFontSize(10);
+  doc.setFont('helvetica', 'normal');
+  doc.setTextColor(100, 100, 100);
+  doc.text(`Exported: ${new Date().toLocaleString()}`, margin, y);
+  y += 12;
+
+  // Title of conversation
+  addWrappedText(conversation.title || 'Conversation', margin, 14, { bold: true, color: [15, 23, 42] });
+  y += 4;
+
+  // Divider
+  doc.setDrawColor(200, 200, 200);
+  doc.line(margin, y, pageWidth - margin, y);
+  y += 8;
+
+  // ── Turns ──
+  const turns = conversation.turns || [];
+  turns.forEach((turn, idx) => {
+    checkPageBreak(30);
+
+    // User Query
+    addWrappedText(`Query ${idx + 1}:`, margin, 11, { bold: true, color: [79, 70, 229] });
+    addWrappedText(turn.query, margin + 2, 10);
+    y += 4;
+
+    // Model Responses
+    if (turn.responses && turn.responses.length > 0) {
+      turn.responses.forEach((res) => {
+        checkPageBreak(20);
+        addWrappedText(`${res.modelName}:`, margin, 10, { bold: true, color: [30, 41, 59] });
+        const cleanAnswer = stripMarkdown(res.answer);
+        // Limit answer length for PDF readability
+        const truncated = cleanAnswer.length > 1500 ? cleanAnswer.substring(0, 1500) + '...' : cleanAnswer;
+        addWrappedText(truncated, margin + 2, 9, { color: [71, 85, 105] });
+        y += 3;
+      });
+    }
+
+    // Synthesis
+    if (turn.finalSummary) {
+      checkPageBreak(20);
+      addWrappedText('AI Synthesis:', margin, 10, { bold: true, color: [16, 185, 129] });
+      const cleanSummary = stripMarkdown(turn.finalSummary);
+      const truncated = cleanSummary.length > 2000 ? cleanSummary.substring(0, 2000) + '...' : cleanSummary;
+      addWrappedText(truncated, margin + 2, 9, { color: [71, 85, 105] });
+      y += 4;
+    }
+
+    // Divider between turns
+    if (idx < turns.length - 1) {
+      checkPageBreak(10);
+      doc.setDrawColor(220, 220, 220);
+      doc.setLineDashPattern([2, 2], 0);
+      doc.line(margin, y, pageWidth - margin, y);
+      doc.setLineDashPattern([], 0);
+      y += 8;
+    }
+  });
+
+  // Footer
+  checkPageBreak(15);
+  y += 5;
+  doc.setDrawColor(200, 200, 200);
+  doc.line(margin, y, pageWidth - margin, y);
+  y += 6;
+  doc.setFontSize(8);
+  doc.setFont('helvetica', 'italic');
+  doc.setTextColor(150, 150, 150);
+  doc.text('Generated by LLMForge — Multi-Model AI Synthesis Platform', margin, y);
+
+  // Save
+  const filename = `llmforge-${(conversation.title || 'chat').replace(/[^a-z0-9]/gi, '_').substring(0, 30)}.pdf`;
+  doc.save(filename);
+};
