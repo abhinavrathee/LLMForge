@@ -247,7 +247,83 @@ const Dashboard = () => {
             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100%', textAlign: 'center', color: 'var(--text-secondary)' }}>
               <div style={{ fontSize: '2rem', marginBottom: '1rem', opacity: 0.8 }}>⚡️</div>
               <h3 style={{ fontSize: '1.25rem', fontWeight: 600, marginBottom: '0.5rem', color: 'var(--text-primary)' }}>Welcome back, {user?.username}</h3>
-              <p style={{ fontSize: '0.875rem' }}>Select your preferred models below and start a query.</p>
+              <p style={{ fontSize: '0.875rem', marginBottom: '2rem' }}>Try a prompt template below, or type your own question.</p>
+
+              <div style={{
+                display: 'grid',
+                gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))',
+                gap: '0.75rem',
+                width: '100%',
+                maxWidth: '700px'
+              }}>
+                {[
+                  { 
+                    icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="16 18 22 12 16 6"></polyline><polyline points="8 6 2 12 8 18"></polyline></svg>, 
+                    title: 'Code Review', desc: 'Analyze code quality', prompt: 'Review this code for bugs, performance issues, and best practices. Suggest improvements:\n\n```\n// paste your code here\n```' 
+                  },
+                  { 
+                    icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M12 16v-4"></path><path d="M12 8h.01"></path></svg>, 
+                    title: 'Explain Concept', desc: 'Clear & concise', prompt: 'Explain the following concept in very simple terms, providing clear analogies and examples:\n\n' 
+                  },
+                  { 
+                    icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>, 
+                    title: 'Debug Code', desc: 'Find & fix errors', prompt: 'I have a bug in my code. Here is the code and the error message. Please help me find and fix the issue:\n\nCode:\n```\n// paste code\n```\n\nError:\n' 
+                  },
+                  { 
+                    icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>, 
+                    title: 'Compare Tech', desc: 'Side-by-side analysis', prompt: 'Compare the following two technologies in detail. Cover pros, cons, performance, ecosystem, learning curve, and when to use each:\n\n' 
+                  },
+                  { 
+                    icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>, 
+                    title: 'Summarize Text', desc: 'Condense long content', prompt: 'Summarize the following text into clear, concise bullet points. Highlight the key takeaways:\n\n' 
+                  },
+                  { 
+                    icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>, 
+                    title: 'Project Ideas', desc: 'Creative inspiration', prompt: 'Suggest 5 creative and unique project ideas for a developer who wants to build something impressive. Include the tech stack, difficulty level, and a brief description for each.' 
+                  }
+                ].map((tmpl, i) => (
+                  <button
+                    key={i}
+                    onClick={() => {
+                      const textarea = document.querySelector('textarea');
+                      if (textarea) {
+                        const nativeSetter = Object.getOwnPropertyDescriptor(window.HTMLTextAreaElement.prototype, 'value').set;
+                        nativeSetter.call(textarea, tmpl.prompt);
+                        textarea.dispatchEvent(new Event('input', { bubbles: true }));
+                        textarea.focus();
+                      }
+                    }}
+                    style={{
+                      display: 'flex',
+                      flexDirection: 'column',
+                      alignItems: 'flex-start',
+                      gap: '0.35rem',
+                      padding: '1rem',
+                      background: 'var(--bg-secondary)',
+                      border: '1px solid var(--border-color)',
+                      borderRadius: '12px',
+                      cursor: 'pointer',
+                      textAlign: 'left',
+                      transition: 'all 0.2s ease',
+                      color: 'var(--text-primary)'
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.borderColor = 'var(--text-tertiary)';
+                      e.currentTarget.style.transform = 'translateY(-2px)';
+                      e.currentTarget.style.boxShadow = '0 4px 16px rgba(0,0,0,0.1)';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.borderColor = 'var(--border-color)';
+                      e.currentTarget.style.transform = 'translateY(0)';
+                      e.currentTarget.style.boxShadow = 'none';
+                    }}
+                  >
+                    <span style={{ fontSize: '1.5rem' }}>{tmpl.icon}</span>
+                    <span style={{ fontWeight: 600, fontSize: '0.9rem' }}>{tmpl.title}</span>
+                    <span style={{ fontSize: '0.78rem', color: 'var(--text-tertiary)' }}>{tmpl.desc}</span>
+                  </button>
+                ))}
+              </div>
             </div>
           )}
 

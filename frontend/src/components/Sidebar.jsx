@@ -8,6 +8,7 @@ const Sidebar = ({ history, loadingHistory, onSelectHistory, currentHistoryId, o
   const [openMenuId, setOpenMenuId] = useState(null);
   const [renamingId, setRenamingId] = useState(null);
   const [renameValue, setRenameValue] = useState('');
+  const [searchQuery, setSearchQuery] = useState('');
 
   const handleRenameStart = (item) => {
     setRenamingId(item._id);
@@ -31,6 +32,10 @@ const Sidebar = ({ history, loadingHistory, onSelectHistory, currentHistoryId, o
       setRenameValue('');
     }
   };
+
+  const filteredHistory = history.filter(item => 
+    (item.title || 'New Chat').toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   return (
     <div style={{
@@ -76,7 +81,7 @@ const Sidebar = ({ history, loadingHistory, onSelectHistory, currentHistoryId, o
       </div>
 
       {!isCollapsed && (
-        <div style={{ marginBottom: '2rem' }}>
+        <div style={{ marginBottom: '1.5rem', display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
           <button 
             className="btn btn-secondary" 
             onClick={onNewChat}
@@ -85,20 +90,48 @@ const Sidebar = ({ history, loadingHistory, onSelectHistory, currentHistoryId, o
             <svg style={{marginRight: '8px'}} xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
             New Chat
           </button>
+
+          <div style={{ position: 'relative' }}>
+            <svg style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-tertiary)' }} width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <circle cx="11" cy="11" r="8"></circle>
+              <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+            </svg>
+            <input 
+              type="text" 
+              placeholder="Search history..." 
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              style={{
+                width: '100%',
+                padding: '0.45rem 0.45rem 0.45rem 2rem',
+                border: '1px solid var(--border-color)',
+                borderRadius: '6px',
+                background: 'var(--bg-primary)',
+                color: 'var(--text-primary)',
+                fontSize: '0.8rem',
+                outline: 'none',
+                transition: 'border-color 0.2s ease'
+              }}
+              onFocus={(e) => e.target.style.borderColor = 'var(--text-tertiary)'}
+              onBlur={(e) => e.target.style.borderColor = 'var(--border-color)'}
+            />
+          </div>
         </div>
       )}
 
       {!isCollapsed && (
-        <div style={{ flex: 1, overflowY: 'auto' }}>
-          <h3 style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--text-tertiary)', textTransform: 'uppercase', marginBottom: '1rem', paddingLeft: '0.5rem' }}>Previous Searches</h3>
+        <div className="hide-scroll" style={{ flex: 1, overflowY: 'auto' }}>
+          <h3 style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--text-tertiary)', textTransform: 'uppercase', marginBottom: '0.75rem', paddingLeft: '0.25rem', letterSpacing: '0.05em' }}>Previous Searches</h3>
         
         {loadingHistory ? (
-           <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', paddingLeft: '0.5rem' }}>Loading...</p>
-        ) : history.length === 0 ? (
-          <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', paddingLeft: '0.5rem' }}>No history yet.</p>
+           <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem', paddingLeft: '0.5rem' }}>Loading...</p>
+        ) : filteredHistory.length === 0 ? (
+          <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem', paddingLeft: '0.25rem' }}>
+            {searchQuery ? 'No matching chats.' : 'No history yet.'}
+          </p>
         ) : (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
-            {history.map((item) => (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.15rem' }}>
+            {filteredHistory.map((item) => (
               <div
                 key={item._id}
                 style={{
